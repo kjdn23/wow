@@ -1,0 +1,254 @@
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>From Karl</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
+  />
+  <style>
+    /* Mimic Windows system font and small window style */
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #c0c0c0;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .window {
+      width: 480px;
+      background-color: #ececec;
+      border: 2px solid #000;
+      box-shadow: 2px 2px 0 #fff inset, -2px -2px 0 #7a7a7a inset;
+      z-index: 10;
+      position: relative;
+    }
+    .title-bar {
+      background: linear-gradient(to right, #0a64ad, #0a64ad);
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      padding: 6px 12px 6px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+      line-height: 1.2;
+    }
+    .title-bar .title-text {
+      white-space: pre-line;
+      display: inline-block;
+    }
+    .title-bar .close-btn {
+      width: 20px;
+      height: 20px;
+      background: #e81123;
+      border: 1px solid #a80000;
+      color: white;
+      font-weight: 700;
+      font-size: 16px;
+      line-height: 18px;
+      text-align: center;
+      cursor: pointer;
+      border-radius: 2px;
+    }
+    .content {
+      padding: 30px 30px 18px 30px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      color: #000;
+      font-size: 16px;
+      white-space: pre-wrap;
+      line-height: 1.4;
+    }
+    .content i {
+      font-size: 40px;
+      color: #0078d7;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+    .buttons {
+      background-color: #d4d0c8;
+      padding: 12px 18px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      border-top: 2px solid #fff;
+      border-bottom: 2px solid #7a7a7a;
+      border-left: 2px solid #7a7a7a;
+      border-right: 2px solid #fff;
+      position: relative;
+    }
+    button {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 14px;
+      padding: 6px 18px;
+      border: 1px solid #000;
+      background-color: #f0f0f0;
+      box-shadow:
+        inset 1px 1px 0 #fff,
+        inset -1px -1px 0 #7a7a7a;
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+      z-index: 1;
+    }
+    button:focus {
+      outline: 1px dotted black;
+      outline-offset: 2px;
+    }
+    /* Confetti container */
+    #confetti-container {
+      pointer-events: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: visible;
+      z-index: 9999;
+    }
+    /* Notification popup */
+    #notification {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #0a64ad;
+      color: white;
+      padding: 20px 40px;
+      border-radius: 6px;
+      font-weight: 700;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      box-shadow: 0 0 15px rgba(0,0,0,0.4);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 10000;
+      max-width: 90vw;
+      text-align: center;
+      font-size: 28px;
+      user-select: none;
+      letter-spacing: 1.2px;
+    }
+    #notification.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .confetti-emoji {
+      position: fixed;
+      font-size: 20px;
+      pointer-events: none;
+      user-select: none;
+      will-change: transform, opacity;
+      z-index: 9999;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="window" role="dialog" aria-labelledby="dialogTitle" aria-modal="true">
+    <div class="title-bar">
+      <span class="title-text" id="dialogTitle">From: Karl
+To: Jonel</span>
+      <button class="close-btn" aria-label="Close window">×</button>
+    </div>
+    <div class="content">
+      <i class="fas fa-info-circle" aria-hidden="true"></i>
+      <span>Hi Jonel, uhm I want to ask you if pwede ka tomorrow? H-hanap ako ng glasses ko sa smp and uhm I want to hangout din— don't worry pag short lang money mo ako bahala :)</span>
+    </div>
+    <div class="buttons">
+      <button id="okBtn" type="button" autofocus>OK</button>
+      <button id="noBtn" type="button">NO</button>
+    </div>
+  </div>
+
+  <div id="confetti-container" aria-hidden="true"></div>
+  <div id="notification" role="alert" aria-live="assertive"></div>
+
+  <script>
+    const confettiContainer = document.getElementById('confetti-container');
+    const notification = document.getElementById('notification');
+    const okBtn = document.getElementById('okBtn');
+    const noBtn = document.getElementById('noBtn');
+
+    // Array of surprise emojis for confetti (OK button)
+    const okEmojis = ['🎉', '✨', '🎊', '🥳', '💥', '🌟', '🎈', '🎆', '🎇', '🪅'];
+    // Array of sad emojis for NO button
+    const noEmojis = ['😢', '😞', '😔', '☹️', '😟', '😿', '😥', '😓', '😭', '😩'];
+
+    function createEmojiConfettiPiece(x, y, emojiArray) {
+      const emoji = document.createElement('div');
+      emoji.classList.add('confetti-emoji');
+      emoji.textContent = emojiArray[Math.floor(Math.random() * emojiArray.length)];
+      emoji.style.left = `${x}px`;
+      emoji.style.top = `${y}px`;
+      emoji.style.fontSize = `${12 + Math.random() * 16}px`;
+      emoji.style.opacity = '1';
+
+      const angle = Math.random() * 2 * Math.PI;
+      const distance = 100 + Math.random() * 100;
+      const duration = 2000 + Math.random() * 1000;
+
+      let start = null;
+      function animate(timestamp) {
+        if (!start) start = timestamp;
+        const elapsed = timestamp - start;
+        const progress = elapsed / duration;
+
+        if (progress < 1) {
+          const dx = Math.cos(angle) * distance * progress;
+          const dy = Math.sin(angle) * distance * progress + progress * 50; // gravity effect
+          emoji.style.transform = `translate(${dx}px, ${dy}px) rotate(${progress * 720}deg)`;
+          emoji.style.opacity = `${1 - progress}`;
+          requestAnimationFrame(animate);
+        } else {
+          emoji.remove();
+        }
+      }
+      confettiContainer.appendChild(emoji);
+      requestAnimationFrame(animate);
+    }
+
+    function launchEmojiConfettiFromButton(button, emojiArray) {
+      const rect = button.getBoundingClientRect();
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const count = 30;
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => createEmojiConfettiPiece(centerX, centerY, emojiArray), i * 30);
+      }
+    }
+
+    function showNotification(message) {
+      notification.textContent = message;
+      notification.classList.add('show');
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 3000);
+    }
+
+    okBtn.addEventListener('click', () => {
+      launchEmojiConfettiFromButton(okBtn, okEmojis);
+      showNotification("YEYY");
+    });
+
+    noBtn.addEventListener('click', () => {
+      launchEmojiConfettiFromButton(noBtn, noEmojis);
+      showNotification("PLEASE SAY YES🙏");
+    });
+
+    // Close button just closes the window (removes it)
+    document.querySelector('.close-btn').addEventListener('click', () => {
+      document.querySelector('.window').remove();
+    });
+  </script>
+</body>
+</html>
